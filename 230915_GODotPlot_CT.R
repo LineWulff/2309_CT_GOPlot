@@ -31,3 +31,11 @@ ggplot(data = GO_df, aes(x = Strength, y = Pathway,
   ylab("") + 
   xlab("Strength") 
 dev.off()
+
+# p adj conversion
+# 3
+10^(-3)
+# 5
+10^(-5)
+# 7
+10^(-7)
