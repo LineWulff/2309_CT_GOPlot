@@ -14,7 +14,7 @@ setwd(dir)
 dato <- str_sub(str_replace_all(Sys.Date(),"-","_"), 3, -1)
 
 #### Read in data from CT ####
-GO_df <- read.csv(paste(dir,"inputdata","Metabolismpathways_quicklook.csv", sep="/"))
+GO_df <- read.csv(paste(dir,"inputdata","Metabolismpathways_quicklook_sh2.csv", sep="/"))
 GO_df <- GO_df[1:20,c("Pathway","Strength","Ratio","p.adj")]
 head(GO_df)
 
@@ -22,7 +22,7 @@ GO_df$Pathway <- factor(GO_df$Pathway, levels = c(GO_df[order(GO_df$Strength),]$
 
 
 #### Plot data ####
-pdf(paste(dir,"/output/",dato,"GO_DotPlot.pdf",sep = ""), height = 6,width = 8)
+pdf(paste(dir,"/output/",dato,"GO_DotPlot_sh2.pdf",sep = ""), height = 6,width = 8)
 ggplot(data = GO_df, aes(x = Strength, y = Pathway, 
                         color = Ratio, size = -log10(p.adj))) + 
   geom_point() +
