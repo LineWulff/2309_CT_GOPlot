@@ -1,5 +1,5 @@
 ## GO enrichment Plots for Carolyn Thompson
-## VErsion 2 - Venn diagrams 
+## Venn diagrams and overlapping DEGs between the two organs
 ## Author: Line Wulff
 ## Date created: 2023.10.24
 
@@ -9,7 +9,6 @@ library(tidyverse)
 library(viridis)
 library(stringr)
 library(VennDiagram)
-
 
 #### General varaibles ####
 dir <- "/Users/linewulff/Documents/work/projects/2309_CT_GOPlot"
