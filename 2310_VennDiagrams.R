@@ -10,7 +10,7 @@ library(viridis)
 library(stringr)
 library(VennDiagram)
 
-#### General varaibles ####
+#### General variables ####
 dir <- "/Users/linewulff/Documents/work/projects/2309_CT_GOPlot"
 setwd(dir)
 dato <- str_sub(str_replace_all(Sys.Date(),"-","_"), 3, -1)
