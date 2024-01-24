@@ -136,15 +136,19 @@ biplot_df[biplot_df$log2FC_SI<0 & biplot_df$log2FC_Panc<0,]$shared <- "SI down, 
 biplot_df[biplot_df$log2FC_SI<0 & biplot_df$log2FC_Panc>0,]$shared <- "SI down, PC up"
 biplot_df[biplot_df$log2FC_SI>0 & biplot_df$log2FC_Panc<0,]$shared <- "SI up, PC down"
 
-
+top10 <- biplot_df %>% arrange(log2FC_Panc) %>% top_n(n=10)
+top10 <- biplot_df %>% group_by(shared) %>% top_n(n=10)
+biplot_df[order(biplot_df$log2FC_Panc),]
 
 cols_shared <- c("SI up, PC up"="#35978f","SI down, PC down"="#dfc27d",
                  "SI down, PC up"="#c2a5cf","SI up, PC down"="#74a9cf",
                  "Not shared"="lightgrey")
 
 pdf(paste(dir,"/output/",dato,"_Biplot_DEGs_PancreasSI_v2.pdf",sep=""), height = 4, width = 5)
-ggplot(biplot_df[biplot_df$shared!="Not shared",], aes(x = log2FC_SI, y = log2FC_Panc, colour = shared))+
+ggplot(biplot_df[biplot_df$shared!="Not shared",], 
+       aes(x = log2FC_SI, y = log2FC_Panc, colour = shared, label = g_symbol))+
   geom_point()+
+  geom_text(data = biplot_df[1:10,], colour = "black")+
   scale_colour_manual(values = cols_shared)+
   labs(colour = "Shared DEGs", x = "log2FC SI", y = "log2FC Pancreas")+
   theme_minimal()
