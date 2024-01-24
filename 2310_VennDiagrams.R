@@ -93,3 +93,59 @@ comm <- vectorlist(list(UpReg = com_up, DownReg = com_down))
 
 
 write.csv(comm, file = paste(dato,"overlappingDEGs_PancreasSI.csv",sep = "_"))
+
+#### Biplot ####
+Panc <- Pancreas[,c("g_symbol","log2FoldChange","padj")]
+Panc$tissue <- "Pancreas"
+Panc <- Panc[!is.na(Panc$log2FoldChange),]
+Panc <- Panc[!is.na(Panc$padj),]
+Panc <- Panc[!is.na(Panc$g_symbol),]
+head(Panc)
+dim(Panc)
+Panc <- Panc[Panc$padj<0.05,]
+dim(Panc)
+colnames(Panc)[2] <- "log2FC_Panc"
+Panc <- Panc[!Panc$g_symbol %in% Panc$g_symbol[duplicated(Panc$g_symbol)],]
+
+
+SI <- SI[,c("g_symbol","log2FoldChange","padj")]
+SI$tissue <- "SI"
+SI <- SI[!is.na(SI$log2FoldChange),]
+SI <- SI[!is.na(SI$padj),]
+SI <- SI[!is.na(SI$g_symbol),]
+head(SI)
+dim(SI)
+SI <- SI[SI$padj<0.05,]
+dim(SI)
+colnames(SI)[2] <- "log2FC_SI"
+#SI <- SI[!SI$g_symbol %in% SI$g_symbol[duplicated(SI$g_symbol)],]
+
+# make df from SI and add overlapping genes from Pancreas
+biplot_df <- SI
+biplot_df$log2FC_Panc <- 0
+biplot_df[biplot_df$g_symbol %in% intersect(Panc$g_symbol, SI$g_symbol),]$log2FC_Panc <- Panc[Panc$g_symbol %in% SI$g_symbol,]$log2FC_Panc
+# now add pancreas genes not in SI 
+biplot_df2 <- Panc[!Panc$g_symbol %in% SI$g_symbol,]
+biplot_df2$log2FC_SI <- 0
+# concatenate together
+biplot_df <- rbind(biplot_df,biplot_df2)
+# make colour scheme
+biplot_df$shared <- "Not shared"
+biplot_df[biplot_df$log2FC_SI>0 & biplot_df$log2FC_Panc>0,]$shared <- "SI up, PC up"
+biplot_df[biplot_df$log2FC_SI<0 & biplot_df$log2FC_Panc<0,]$shared <- "SI down, PC down"
+biplot_df[biplot_df$log2FC_SI<0 & biplot_df$log2FC_Panc>0,]$shared <- "SI down, PC up"
+biplot_df[biplot_df$log2FC_SI>0 & biplot_df$log2FC_Panc<0,]$shared <- "SI up, PC down"
+
+
+
+cols_shared <- c("SI up, PC up"="#35978f","SI down, PC down"="#dfc27d",
+                 "SI down, PC up"="#c2a5cf","SI up, PC down"="#74a9cf",
+                 "Not shared"="lightgrey")
+
+pdf(paste(dir,"/output/",dato,"_Biplot_DEGs_PancreasSI_v2.pdf",sep=""), height = 4, width = 5)
+ggplot(biplot_df[biplot_df$shared!="Not shared",], aes(x = log2FC_SI, y = log2FC_Panc, colour = shared))+
+  geom_point()+
+  scale_colour_manual(values = cols_shared)+
+  labs(colour = "Shared DEGs", x = "log2FC SI", y = "log2FC Pancreas")+
+  theme_minimal()
+dev.off()
