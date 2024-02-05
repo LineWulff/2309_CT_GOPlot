@@ -146,10 +146,17 @@ cols_shared <- c("SI up, PC up"="#35978f","SI down, PC down"="#dfc27d",
 
 pdf(paste(dir,"/output/",dato,"_Biplot_DEGs_PancreasSI_v2.pdf",sep=""), height = 4, width = 5)
 ggplot(biplot_df[biplot_df$shared!="Not shared",], 
-       aes(x = log2FC_SI, y = log2FC_Panc, colour = shared, label = g_symbol))+
+       aes(x = log2FC_SI, y = log2FC_Panc, colour = shared, ))+ #label = g_symbol))+
   geom_point()+
-  geom_text(data = biplot_df[1:10,], colour = "black")+
+ # geom_text(data = biplot_df[1:10,], colour = "black")+
   scale_colour_manual(values = cols_shared)+
   labs(colour = "Shared DEGs", x = "log2FC SI", y = "log2FC Pancreas")+
   theme_minimal()
 dev.off()
+
+# Save csv of biplot wo. "not shared" for Carolyn
+write.csv(biplot_df[biplot_df$shared!="Not shared",], 
+          file = paste(dir,"/output/",dato,"_biplotdata_DEGsPancreasSI.csv", sep=""))
+
+write.csv(biplot_df[biplot_df$shared=="Not shared",], 
+          file = paste(dir,"/output/",dato,"_biplotdata_DEGsPancreasSI_notshared.csv", sep=""))
