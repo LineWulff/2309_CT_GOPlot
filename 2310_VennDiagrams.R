@@ -9,6 +9,7 @@ library(tidyverse)
 library(viridis)
 library(stringr)
 library(VennDiagram)
+library(ggrepel)
 
 #### General variables ####
 dir <- "/Users/linewulff/Documents/work/projects/2309_CT_GOPlot"
@@ -160,3 +161,86 @@ write.csv(biplot_df[biplot_df$shared!="Not shared",],
 
 write.csv(biplot_df[biplot_df$shared=="Not shared",], 
           file = paste(dir,"/output/",dato,"_biplotdata_DEGsPancreasSI_notshared.csv", sep=""))
+
+#### Update with volcano plots for Carolyn's ICMI talk ####
+#  Panc_all_genes.csv - (Log2(FC) cut-off > 0.26303 and Padj cut-off <0.05).
+## plot 1 - panc genes with cut-offs
+Panc$sign <- "not sign."
+Panc[Panc$log2FC_Panc > 0.26303 & Panc$padj < 0.05,]$sign <- 'up' 
+Panc[Panc$log2FC_Panc < -0.26303 & Panc$padj < 0.05,]$sign <- 'down' 
+Panc_cols <- c("not sign."="lightgrey", "up"="royalblue3","down"="goldenrod1")
+
+pdf(paste(dir,"/output/",dato,"_Biplot_PancreasDEGs_v1_onlycols.pdf",sep=""), height = 4, width = 5)
+ggplot(Panc, aes(x = log2FC_Panc, y = -log10(padj), colour = sign, ))+ 
+  geom_point()+
+  # geom_text(data = biplot_df[1:10,], colour = "black")+
+  geom_vline(xintercept = c(-0.26303,0.26303), linetype = 'dashed')+
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed")+
+  scale_colour_manual(values = Panc_cols)+
+  labs(colour = "DEGs", x = "log2FC Panc", y = "-log10(adj. p-value)")+
+  theme_minimal()
+dev.off()
+
+## Plot 2 - now with specific genes marked by colour
+markDEGS <- read.csv("/Users/linewulff/Documents/work/projects/2309_CT_GOPlot/inputdata/Lipidmetabolism_Panc4volc.csv", header = F)
+head(markDEGS)
+markDEGS <- markDEGS$V1
+length(markDEGS)
+
+pdf(paste(dir,"/output/",dato,"_Biplot_PancreasDEGs_v2_markedDEGs.pdf",sep=""), height = 4, width = 5)
+ggplot(Panc, aes(x = log2FC_Panc, y = -log10(padj), colour = sign, ))+ 
+  geom_point()+
+  geom_point(data = Panc[Panc$g_symbol %in% markDEGS,], shape = 21, colour = "black",fill = "white")+
+  #geom_text(data = Panc[Panc$g_symbol %in% markDEGS,], colour = "black")+
+  geom_vline(xintercept = c(-0.26303,0.26303), linetype = 'dashed')+
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed")+
+  scale_colour_manual(values = Panc_cols)+
+  labs(colour = "DEGs", x = "log2FC Panc", y = "-log10(adj. p-value)")+
+  theme_minimal()
+dev.off()
+
+## Plot 3 - biplot with same colouring
+cols_shared_new <- c("SI up, PC up"="royalblue3","SI down, PC down"="goldenrod1",
+                 "SI down, PC up"="lightgrey","SI up, PC down"="lightgrey",
+                 "Not shared"="lightgrey")
+
+pdf(paste(dir,"/output/",dato,"_Biplot_DEGs_PancreasSI_v3.pdf",sep=""), height = 4, width = 5)
+ggplot(biplot_df[biplot_df$shared!="Not shared",], 
+       aes(x = log2FC_SI, y = log2FC_Panc, colour = shared, ))+ #label = g_symbol))+
+  geom_point()+
+  # geom_text(data = biplot_df[1:10,], colour = "black")+
+  scale_colour_manual(values = cols_shared_new)+
+  labs(colour = "Shared DEGs", x = "log2FC SI", y = "log2FC Pancreas")+
+  theme_minimal()
+dev.off()
+
+## Plot 4 - same as plot 3 but with DEGs marked
+markDEGS_sh <- read.csv("/Users/linewulff/Documents/work/projects/2309_CT_GOPlot/inputdata/Lipidmetabolism_shared4biplot.csv", header = F)
+head(markDEGS_sh)
+markDEGS_sh <- markDEGS_sh$V1
+length(markDEGS_sh)
+
+pdf(paste(dir,"/output/",dato,"_Biplot_DEGs_PancreasSI_markedDEGS_v4.pdf",sep=""), height = 4, width = 5)
+ggplot(biplot_df[biplot_df$shared!="Not shared",], 
+       aes(x = log2FC_SI, y = log2FC_Panc, colour = shared, ))+ #label = g_symbol))+
+  geom_point()+
+  geom_point(data = biplot_df[biplot_df$g_symbol %in% markDEGS_sh,], shape = 21, colour = "black", fill = "white")+
+  # geom_text(data = biplot_df[1:10,], colour = "black")+
+  scale_colour_manual(values = cols_shared_new)+
+  labs(colour = "Shared DEGs", x = "log2FC SI", y = "log2FC Pancreas")+
+  theme_minimal()
+dev.off()
+
+## Plot 5 - same as above but points labelled
+pdf(paste(dir,"/output/",dato,"_Biplot_DEGs_PancreasSI_markedandlabsDEGs_v5.pdf",sep=""), height = 4, width = 5)
+ggplot(biplot_df[biplot_df$shared!="Not shared",], 
+       aes(x = log2FC_SI, y = log2FC_Panc, colour = shared, label = g_symbol))+
+  geom_point()+
+  geom_point(data = biplot_df[biplot_df$g_symbol %in% markDEGS_sh,], shape = 21, colour = "black", fill = "white")+
+  geom_label_repel(data = biplot_df[biplot_df$g_symbol %in% markDEGS_sh,], colour = "black", max.overlaps = 35)+
+  scale_colour_manual(values = cols_shared_new)+
+  labs(colour = "Shared DEGs", x = "log2FC SI", y = "log2FC Pancreas")+
+  theme_minimal()
+dev.off()
+
+
