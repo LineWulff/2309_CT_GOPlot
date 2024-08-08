@@ -155,6 +155,23 @@ ggplot(biplot_df[biplot_df$shared!="Not shared",],
   theme_minimal()
 dev.off()
 
+# same as above but with genes marked like plot 2 below
+markDEGS <- read.csv("/Users/linewulff/Documents/work/projects/2309_CT_GOPlot/inputdata/Metabolism_shared.csv", header = F)
+head(markDEGS)
+markDEGS <- markDEGS$V1
+length(markDEGS)
+
+pdf(paste(dir,"/output/",dato,"_Biplot_DEGs_PancreasSI_v2_markedDEGs.pdf",sep=""), height = 4, width = 5)
+ggplot(biplot_df[biplot_df$shared!="Not shared",], 
+       aes(x = log2FC_SI, y = log2FC_Panc, colour = shared, ))+ 
+  geom_point()+
+  geom_point(data = biplot_df[biplot_df$g_symbol %in% markDEGS,], shape = 21, colour = "black",fill = "white")+
+  scale_colour_manual(values = cols_shared)+
+  labs(colour = "Shared DEGs", x = "log2FC SI", y = "log2FC Pancreas")+
+  theme_minimal()
+dev.off()
+
+
 # Save csv of biplot wo. "not shared" for Carolyn
 write.csv(biplot_df[biplot_df$shared!="Not shared",], 
           file = paste(dir,"/output/",dato,"_biplotdata_DEGsPancreasSI.csv", sep=""))
@@ -214,6 +231,22 @@ ggplot(biplot_df[biplot_df$shared!="Not shared",],
   theme_minimal()
 dev.off()
 
+markDEGS <- read.csv("/Users/linewulff/Documents/work/projects/2309_CT_GOPlot/inputdata/Metabolism_shared.csv", header = F)
+head(markDEGS)
+markDEGS <- markDEGS$V1
+length(markDEGS)
+
+pdf(paste(dir,"/output/",dato,"_Biplot_DEGs_PancreasSI_v3_markedDEGs.pdf",sep=""), height = 4, width = 5)
+ggplot(biplot_df[biplot_df$shared!="Not shared",], 
+       aes(x = log2FC_SI, y = log2FC_Panc, colour = shared, ))+ 
+  geom_point()+
+  geom_point(data = biplot_df[biplot_df$g_symbol %in% markDEGS,], shape = 21, colour = "black",fill = "white")+
+  scale_colour_manual(values = cols_shared_new)+
+  labs(colour = "Shared DEGs", x = "log2FC SI", y = "log2FC Pancreas")+
+  theme_minimal()
+dev.off()
+
+
 ## Plot 4 - same as plot 3 but with DEGs marked
 markDEGS_sh <- read.csv("/Users/linewulff/Documents/work/projects/2309_CT_GOPlot/inputdata/Lipidmetabolism_shared4biplot.csv", header = F)
 head(markDEGS_sh)
@@ -243,4 +276,21 @@ ggplot(biplot_df[biplot_df$shared!="Not shared",],
   theme_minimal()
 dev.off()
 
+#### Same as for ICMI talk but SI data - only plot 1 ####
+#  SI_all_genes.csv - (Log2(FC) cut-off > 0.26303 and Padj cut-off <0.05).
+## plot 1 - panc genes with cut-offs
+SI$sign <- "not sign."
+SI[SI$log2FC_SI > 0.26303 & SI$padj < 0.05,]$sign <- 'up' 
+SI[SI$log2FC_SI < -0.26303 & SI$padj < 0.05,]$sign <- 'down' 
+SI_cols <- c("not sign."="lightgrey", "up"="royalblue3","down"="goldenrod1")
 
+pdf(paste(dir,"/output/",dato,"_Biplot_SIDEGs_v1_onlycols.pdf",sep=""), height = 4, width = 5)
+ggplot(SI, aes(x = log2FC_SI, y = -log10(padj), colour = sign, ))+ 
+  geom_point()+
+  # geom_text(data = biplot_df[1:10,], colour = "black")+
+  geom_vline(xintercept = c(-0.26303,0.26303), linetype = 'dashed')+
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed")+
+  scale_colour_manual(values = SI_cols)+
+  labs(colour = "DEGs", x = "log2FC SI", y = "-log10(adj. p-value)")+
+  theme_minimal()
+dev.off()
