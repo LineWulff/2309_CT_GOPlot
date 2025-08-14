@@ -294,3 +294,41 @@ ggplot(SI, aes(x = log2FC_SI, y = -log10(padj), colour = sign, ))+
   labs(colour = "DEGs", x = "log2FC SI", y = "-log10(adj. p-value)")+
   theme_minimal()
 dev.off()
+
+#### Update 13/8-25 - Pancreas plot edits
+## Remove Col6a5
+## Add labels if passing significance thresholds
+Panc$sign <- "not sign."
+Panc[Panc$log2FC_Panc > 0.26303 & Panc$padj < 0.05,]$sign <- 'up' 
+Panc[Panc$log2FC_Panc < -0.26303 & Panc$padj < 0.05,]$sign <- 'down' 
+Panc_cols <- c("not sign."="lightgrey", "up"="royalblue3","down"="goldenrod1")
+
+pdf(paste(dir,"/output/",dato,"_Biplot_PancreasDEGs_v2_Col6a5rem_onlycols.pdf",sep=""), height = 4, width = 5)
+ggplot(Panc[Panc$g_symbol!="Col6a5",], aes(x = log2FC_Panc, y = -log10(padj), colour = sign, ))+ 
+  geom_point()+
+  # geom_text(data = biplot_df[1:10,], colour = "black")+
+  geom_vline(xintercept = c(-0.26303,0.26303), linetype = 'dashed')+
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed")+
+  scale_colour_manual(values = Panc_cols)+
+  labs(colour = "DEGs", x = "log2FC Panc", y = "-log10(adj. p-value)")+
+  theme_minimal()
+dev.off()
+
+markDEGS_v2 <- read.csv("/Users/linewulff/Documents/work/projects/2309_CT_GOPlot/inputdata/Betacellgenes_forvolcanoplot.csv",header = F)
+head(markDEGS_v2)
+markDEGS_v2 <- markDEGS_v2$V1
+length(markDEGS_v2) #39
+dim(Panc[Panc$g_symbol %in% markDEGS_v2 & Panc$sign!="not sign.",]) #22 significant
+
+pdf(paste(dir,"/output/",dato,"_Biplot_PancreasDEGs_v2_Col6a5rem_selectDEGlabels.pdf",sep=""), height = 4, width = 5)
+ggplot(Panc[Panc$g_symbol!="Col6a5",], aes(x = log2FC_Panc, y = -log10(padj), colour = sign, label = g_symbol))+ 
+  geom_point()+
+  # geom_text(data = biplot_df[1:10,], colour = "black")+
+  geom_vline(xintercept = c(-0.26303,0.26303), linetype = 'dashed')+
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed")+
+  geom_label_repel(data = Panc[Panc$g_symbol %in% markDEGS_v2 & Panc$sign!="not sign.",], colour = "black", max.overlaps = 50)+
+  scale_colour_manual(values = Panc_cols)+
+  labs(colour = "DEGs", x = "log2FC Panc", y = "-log10(adj. p-value)")+
+  theme_minimal()
+dev.off()
+
