@@ -332,3 +332,53 @@ ggplot(Panc[Panc$g_symbol!="Col6a5",], aes(x = log2FC_Panc, y = -log10(padj), co
   theme_minimal()
 dev.off()
 
+#### 26-01-20 - Volcano plots for beta cell genes ####
+markDEGS_v3 <- read.csv("/Users/linewulff/Documents/work/projects/2309_CT_GOPlot/inputdata/Slcforvolcanoplot.csv",header = F)
+markDEGS_v2 <- read.csv("/Users/linewulff/Documents/work/projects/2309_CT_GOPlot/inputdata/Betacellgenes_forvolcanoplot.csv",header = F)
+markDEGS_v2 <- markDEGS_v2$V1; markDEGS_v3 <- markDEGS_v3$V1
+
+pdf(paste(dir,"/output/",dato,"_volcplot_PancreasDEGs_v2_Col6a5rem_slcandbetacellsgenes.pdf",sep=""), height = 4, width = 5)
+ggplot(Panc[Panc$g_symbol!="Col6a5",], aes(x = log2FC_Panc, y = -log10(padj), colour = sign, label = g_symbol))+ 
+  geom_point()+
+  geom_point(data = Panc[Panc$g_symbol %in% markDEGS_v2 & Panc$sign!="not sign.",], fill = "darkolivegreen",colour="black", shape = 21)+
+  geom_point(data = Panc[Panc$g_symbol %in% markDEGS_v3 & Panc$sign!="not sign.",], fill = "firebrick",colour="black", shape =21)+
+  # geom_text(data = biplot_df[1:10,], colour = "black")+
+  geom_vline(xintercept = c(-0.26303,0.26303), linetype = 'dashed')+
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed")+
+  geom_label_repel(data = Panc[Panc$g_symbol %in% markDEGS_v2 & Panc$sign!="not sign.",], colour = "darkolivegreen", max.overlaps = 100)+
+  geom_label_repel(data = Panc[Panc$g_symbol %in% markDEGS_v3 & Panc$sign!="not sign.",], colour = "firebrick", max.overlaps = 100)+
+  scale_colour_manual(values = Panc_cols)+
+  labs(colour = "DEGs", x = "log2FC Panc", y = "-log10(adj. p-value)")+
+  theme_minimal()
+dev.off()
+
+pdf(paste(dir,"/output/",dato,"_volcplot_PancreasDEGs_v2_Col6a5rem_slcgenes.pdf",sep=""), height = 4, width = 5)
+ggplot(Panc[Panc$g_symbol!="Col6a5",], aes(x = log2FC_Panc, y = -log10(padj), colour = sign, label = g_symbol))+ 
+  geom_point()+
+  geom_point(data = Panc[Panc$g_symbol %in% markDEGS_v3 & Panc$sign!="not sign.",],colour="black", shape =21)+
+  # geom_text(data = biplot_df[1:10,], colour = "black")+
+  geom_vline(xintercept = c(-0.26303,0.26303), linetype = 'dashed')+
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed")+
+  geom_label_repel(data = Panc[Panc$g_symbol %in% markDEGS_v3 & Panc$sign!="not sign.",], colour = "black", max.overlaps = 100)+
+  scale_colour_manual(values = Panc_cols)+
+  labs(colour = "DEGs", x = "log2FC Panc", y = "-log10(adj. p-value)")+
+  theme_minimal()
+dev.off()
+
+pdf(paste(dir,"/output/",dato,"_volcplot_PancreasDEGs_v2_Col6a5rem_betacellgenes.pdf",sep=""), height = 4, width = 5)
+ggplot(Panc[Panc$g_symbol!="Col6a5",], aes(x = log2FC_Panc, y = -log10(padj), colour = sign, label = g_symbol))+ 
+  geom_point()+
+  geom_point(data = Panc[Panc$g_symbol %in% markDEGS_v2 & Panc$sign!="not sign.",],colour="black", shape =21)+
+  # geom_text(data = biplot_df[1:10,], colour = "black")+
+  geom_vline(xintercept = c(-0.26303,0.26303), linetype = 'dashed')+
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed")+
+  geom_label_repel(data = Panc[Panc$g_symbol %in% markDEGS_v2 & Panc$sign!="not sign.",], colour = "black", max.overlaps = 100)+
+  scale_colour_manual(values = Panc_cols)+
+  labs(colour = "DEGs", x = "log2FC Panc", y = "-log10(adj. p-value)")+
+  theme_minimal()
+dev.off()
+
+
+
+
+

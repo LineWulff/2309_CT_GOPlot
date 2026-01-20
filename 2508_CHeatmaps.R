@@ -99,3 +99,35 @@ Heatmap(t(scale(t(data2[data2_sig,]))),
         top_annotation = data_ha)
 dev.off()
 
+#### Beta cell gene heatmap ####
+Betacells <- read.csv(paste(dir,"inputdata","Beta_cells.csv", sep="/"))
+head(Betacells)
+rownames(Betacells) <- Betacells$X
+Betacells <- Betacells[,c(2:9)]
+
+markDEGS_v2 <- read.csv("/Users/linewulff/Documents/work/projects/2309_CT_GOPlot/inputdata/Betacellgenes_forvolcanoplot.csv",header = F)
+markDEGS_v2 <- markDEGS_v2$V1
+
+# Significant to include
+sig_genes <- markDEGS_v2[markDEGS_v2 %in% Panc[Panc$sign!="not sign.",]$g_symbol]
+
+pdf(paste(dir,"/output/",dato,"_Heatmap_Betacellgenes_v1.pdf",sep=""), height = 6, width=5)
+Heatmap(t(scale(t(Betacells[sig_genes,]))),
+        col = mycols,
+        name="Exp. level",
+        show_column_names = FALSE,
+        cluster_columns = FALSE,
+        #show_row_dend = FALSE,
+        top_annotation = data_ha)
+dev.off()
+
+pdf(paste(dir,"/output/",dato,"_Heatmap_Betacellgenes_v2_wDendro.pdf",sep=""), height = 6, width=7)
+Heatmap(t(scale(t(Betacells[sig_genes,]))),
+        col = mycols,
+        name="Exp. level",
+        show_column_names = FALSE,
+        cluster_columns = FALSE,
+        #show_row_dend = FALSE,
+        row_dend_width = unit(3, "cm"),
+        top_annotation = data_ha)
+dev.off()
